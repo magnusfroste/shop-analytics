@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ThemeProvider } from 'next-themes';
 import ChatSidebar from '../chat/ChatSidebar';
 import ChatHeader from '../chat/ChatHeader';
 import MessageList from '../chat/MessageList';
 import ChatInput from '../chat/ChatInput';
 import DashboardPanel from '../dashboard/DashboardPanel';
-import { useChat } from '../../hooks/useChat';
+import { useConversations } from '../../hooks/useConversations';
+import { useMessages } from '../../hooks/useMessages';
+import { supabase } from '../../integrations/supabase/client';
+import { aggregateDataForChatGPT } from '../../utils/dataProcessing';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
@@ -24,39 +27,120 @@ const ChatLayout = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isDashboardOpen, setIsDashboardOpen] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
-  const [conversations, setConversations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const { messages, isLoading, error, sendMessage, clearMessages } = useChat({
-    visitorData,
-    weatherData,
-    systemPrompt,
-    userPrompt,
-    model
-  });
+  const { 
+    conversations, 
+    createConversation, 
+    updateConversation,
+    deleteConversation 
+  } = useConversations();
 
-  const handleNewChat = () => {
+  const { 
+    messages, 
+    addMessage, 
+    clearMessages,
+    setMessages 
+  } = useMessages(currentConversationId);
+
+  const sendMessage = useCallback(async (content) => {
+    if (!content.trim()) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Create conversation if none exists
+      let convId = currentConversationId;
+      if (!convId) {
+        // Generate title from first message (first 50 chars)
+        const title = content.length > 50 ? content.substring(0, 47) + '...' : content;
+        const newConv = await createConversation(title);
+        if (!newConv) throw new Error('Failed to create conversation');
+        convId = newConv.id;
+        setCurrentConversationId(convId);
+      }
+
+      // Add user message to database
+      await addMessage('user', content);
+
+      // Prepare data for ChatGPT
+      const aggregatedData = aggregateDataForChatGPT(visitorData, weatherData);
+      const formattedUserPrompt = userPrompt
+        .replace('{question}', content)
+        .replace('{visitorData}', JSON.stringify(aggregatedData));
+
+      // Build conversation history
+      const conversationHistory = messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      // Call ChatGPT
+      const { data, error: functionError } = await supabase.functions.invoke('ask-chatgpt', {
+        body: {
+          question: content,
+          visitorData: aggregatedData,
+          systemPrompt,
+          userPrompt: formattedUserPrompt,
+          model,
+          conversationHistory,
+        },
+      });
+
+      if (functionError) {
+        throw new Error(functionError.message || 'Failed to get response');
+      }
+
+      if (data && data.content) {
+        // Add assistant message to database
+        await addMessage('assistant', data.content);
+        
+        // Update conversation timestamp
+        await updateConversation(convId, { updated_at: new Date().toISOString() });
+      } else {
+        throw new Error('Unexpected response format');
+      }
+    } catch (err) {
+      console.error('Error in chat:', err);
+      setError(err.message || 'Failed to send message');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentConversationId, visitorData, weatherData, systemPrompt, userPrompt, model, messages, createConversation, addMessage, updateConversation]);
+
+  const handleNewChat = useCallback(() => {
     clearMessages();
     setCurrentConversationId(null);
-  };
+    setError(null);
+  }, [clearMessages]);
 
-  const handleSelectConversation = (id) => {
+  const handleSelectConversation = useCallback((id) => {
     setCurrentConversationId(id);
-    // In a real app, load messages for this conversation
-  };
+    setError(null);
+  }, []);
 
-  const handleDeleteConversation = (id) => {
-    setConversations(prev => prev.filter(c => c.id !== id));
-    if (currentConversationId === id) {
+  const handleDeleteConversation = useCallback(async (id) => {
+    const success = await deleteConversation(id);
+    if (success && currentConversationId === id) {
       handleNewChat();
     }
-  };
+  }, [deleteConversation, currentConversationId, handleNewChat]);
+
+  // Format conversations for sidebar
+  const formattedConversations = conversations.map(conv => ({
+    id: conv.id,
+    title: conv.title,
+    date: new Date(conv.updated_at || conv.created_at).toLocaleDateString('sv-SE'),
+  }));
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="h-screen w-full flex bg-background overflow-hidden">
         {/* Sidebar */}
         <ChatSidebar
-          conversations={conversations}
+          conversations={formattedConversations}
           currentConversationId={currentConversationId}
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewChat}
@@ -73,7 +157,10 @@ const ChatLayout = ({
             onOpenSettings={onOpenSettings}
             isSidebarOpen={isSidebarOpen}
             isDashboardOpen={isDashboardOpen}
-            title={currentConversationId ? "Konversation" : "Ny konversation"}
+            title={currentConversationId 
+              ? (formattedConversations.find(c => c.id === currentConversationId)?.title || "Konversation")
+              : "Ny konversation"
+            }
           />
 
           {/* Error display */}
