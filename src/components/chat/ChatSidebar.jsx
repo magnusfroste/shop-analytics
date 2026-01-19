@@ -12,13 +12,6 @@ const ChatSidebar = ({
   onDeleteConversation,
   isOpen 
 }) => {
-  // Demo conversations for now - will be replaced with real data
-  const demoConversations = conversations.length > 0 ? conversations : [
-    { id: '1', title: 'Besökstrender vecka 3', date: '2026-01-19' },
-    { id: '2', title: 'Väderkorrelation analys', date: '2026-01-18' },
-    { id: '3', title: 'Demografisk översikt', date: '2026-01-17' },
-  ];
-
   if (!isOpen) {
     return null;
   }
@@ -40,7 +33,7 @@ const ChatSidebar = ({
       {/* Conversations list */}
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
-          {demoConversations.map((conv) => (
+          {conversations.map((conv) => (
             <div
               key={conv.id}
               className={cn(
