@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import ChatSidebar from '../chat/ChatSidebar';
 import ChatHeader from '../chat/ChatHeader';
@@ -7,6 +8,7 @@ import ChatInput from '../chat/ChatInput';
 import DashboardPanel from '../dashboard/DashboardPanel';
 import { useConversations } from '../../hooks/useConversations';
 import { useMessages } from '../../hooks/useMessages';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../integrations/supabase/client';
 import { aggregateDataForChatGPT } from '../../utils/dataProcessing';
 import { cn } from '@/lib/utils';
@@ -24,6 +26,8 @@ const ChatLayout = ({
   model,
   onOpenSettings
 }) => {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isDashboardOpen, setIsDashboardOpen] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -128,6 +132,11 @@ const ChatLayout = ({
     }
   }, [deleteConversation, currentConversationId, handleNewChat]);
 
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+    navigate('/auth');
+  }, [signOut, navigate]);
+
   // Format conversations for sidebar
   const formattedConversations = conversations.map(conv => ({
     id: conv.id,
@@ -155,6 +164,7 @@ const ChatLayout = ({
             onToggleDashboard={() => setIsDashboardOpen(!isDashboardOpen)}
             onNewChat={handleNewChat}
             onOpenSettings={onOpenSettings}
+            onSignOut={handleSignOut}
             isSidebarOpen={isSidebarOpen}
             isDashboardOpen={isDashboardOpen}
             title={currentConversationId 

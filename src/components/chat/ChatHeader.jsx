@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PanelLeftClose, PanelRightClose, Settings, Plus, Moon, Sun } from 'lucide-react';
+import { PanelLeftClose, PanelRightClose, Settings, Plus, Moon, Sun, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 const ChatHeader = ({ 
@@ -8,6 +8,7 @@ const ChatHeader = ({
   onToggleDashboard, 
   onNewChat,
   onOpenSettings,
+  onSignOut,
   isSidebarOpen,
   isDashboardOpen,
   title = "Ny konversation"
@@ -61,6 +62,16 @@ const ChatHeader = ({
           title="Inställningar"
         >
           <Settings className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onSignOut}
+          className="h-8 w-8"
+          title="Logga ut"
+        >
+          <LogOut className="h-4 w-4" />
         </Button>
 
         <Button

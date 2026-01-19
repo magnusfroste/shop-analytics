@@ -30,9 +30,13 @@ export const useConversations = () => {
 
   const createConversation = useCallback(async (title = 'Ny konversation') => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { data, error: createError } = await supabase
         .from('conversations')
-        .insert([{ title }])
+        .insert([{ title, user_id: user.id }])
         .select()
         .single();
 
