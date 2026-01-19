@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { PanelLeftClose, PanelRightClose, Settings, Plus, Moon, Sun, LogOut } from 'lucide-react';
+import { PanelLeftClose, PanelRightClose, Settings, Plus, Moon, Sun, LogOut, ShieldCheck } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useUserRole } from '../../hooks/useUserRole';
 
 const ChatHeader = ({ 
   onToggleSidebar, 
@@ -14,6 +16,8 @@ const ChatHeader = ({
   title = "Ny konversation"
 }) => {
   const { theme, setTheme } = useTheme();
+  const { isAdmin } = useUserRole();
+  const navigate = useNavigate();
 
   return (
     <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4 shrink-0">
@@ -44,6 +48,18 @@ const ChatHeader = ({
       </h1>
 
       <div className="flex items-center gap-1">
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/admin/users')}
+            className="h-8 w-8"
+            title="Användarhantering"
+          >
+            <ShieldCheck className="h-4 w-4" />
+          </Button>
+        )}
+
         <Button
           variant="ghost"
           size="icon"
