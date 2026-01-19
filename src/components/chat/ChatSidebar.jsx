@@ -1,8 +1,15 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, MessageSquare, Trash2 } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const ChatSidebar = ({ 
   conversations = [], 
@@ -10,11 +17,16 @@ const ChatSidebar = ({
   onSelectConversation, 
   onNewConversation,
   onDeleteConversation,
+  onSignOut,
+  user,
   isOpen 
 }) => {
   if (!isOpen) {
     return null;
   }
+
+  const userEmail = user?.email || 'Användare';
+  const userInitial = userEmail.charAt(0).toUpperCase();
 
   return (
     <div className="w-64 h-full border-r border-border bg-muted/30 flex flex-col">
@@ -65,17 +77,35 @@ const ChatSidebar = ({
         </div>
       </ScrollArea>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
-          <img 
-            src="/anavid.png" 
-            alt="Ana" 
-            className="h-6 w-6 rounded-full"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
-          <span>Ana - Visitor Analytics AI</span>
-        </div>
+      {/* User Profile Footer - Grok style */}
+      <div className="mt-auto border-t border-border p-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-left">
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span className="text-sm font-semibold text-primary">{userInitial}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{userEmail}</p>
+                <p className="text-xs text-muted-foreground">Inloggad</p>
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuItem disabled className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span className="truncate">{userEmail}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={onSignOut}
+              className="text-destructive focus:text-destructive flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logga ut
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

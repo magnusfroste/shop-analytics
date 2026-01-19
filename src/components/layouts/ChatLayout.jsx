@@ -6,10 +6,10 @@ import ChatHeader from '../chat/ChatHeader';
 import MessageList from '../chat/MessageList';
 import ChatInput from '../chat/ChatInput';
 import DashboardPanel from '../dashboard/DashboardPanel';
-import { useConversations } from '../../hooks/useConversations';
-import { useMessages } from '../../hooks/useMessages';
-import { useAuth } from '../../hooks/useAuth';
-import { supabase } from '../../integrations/supabase/client';
+import { useConversations } from '@/hooks/useConversations';
+import { useMessages } from '@/hooks/useMessages';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { aggregateDataForChatGPT } from '../../utils/dataProcessing';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -27,7 +27,7 @@ const ChatLayout = ({
   onOpenSettings
 }) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isDashboardOpen, setIsDashboardOpen] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -154,6 +154,8 @@ const ChatLayout = ({
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewChat}
           onDeleteConversation={handleDeleteConversation}
+          onSignOut={handleSignOut}
+          user={user}
           isOpen={isSidebarOpen}
         />
 
