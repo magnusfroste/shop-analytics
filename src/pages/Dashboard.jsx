@@ -85,16 +85,24 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
-      <main className="flex-grow container mx-auto p-6">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">Chat With Your Visitor Data (POC)</h1>
-          <div className="flex items-center gap-4">
-            <Link to="/admin">
-              <Button variant="outline" className="shadow-sm hover:shadow-md transition-all">Admin Page</Button>
+      <main className="flex-grow container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
+            Chat With Your Visitor Data (POC)
+          </h1>
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <Link to="/admin" className="flex-1 sm:flex-none">
+              <Button variant="outline" className="shadow-sm hover:shadow-md transition-all w-full sm:w-auto text-sm">
+                Admin
+              </Button>
             </Link>
-            <Button onClick={() => setIsSettingsOpen(true)} variant="outline" className="shadow-sm hover:shadow-md transition-all flex items-center">
-              <SettingsIcon className="mr-2 h-4 w-4" />
-              Analysis Settings
+            <Button 
+              onClick={() => setIsSettingsOpen(true)} 
+              variant="outline" 
+              className="shadow-sm hover:shadow-md transition-all flex items-center flex-1 sm:flex-none text-sm"
+            >
+              <SettingsIcon className="mr-1 sm:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Analysis </span>Settings
             </Button>
           </div>
         </div>
@@ -107,7 +115,7 @@ const Dashboard = () => {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="bg-white/50 backdrop-blur-sm shadow-md hover:shadow-lg transition-all border-0">
             <CardHeader>
               <CardTitle className="flex items-center text-blue-700">
@@ -165,16 +173,16 @@ const Dashboard = () => {
               }} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <ChartCard title="Age Distribution" chart={<AgeDistributionChart data={processedData.ageDistribution} />} />
               <ChartCard title="Gender Distribution" chart={<GenderDistributionChart data={processedData.genderDistribution} />} />
-              <ChartCard title="Daily Visitor Trend" chart={<DailyVisitorTrendChart data={processedData.visitsOverTime} />} className="md:col-span-2" />
+              <ChartCard title="Daily Visitor Trend" chart={<DailyVisitorTrendChart data={processedData.visitsOverTime} />} className="lg:col-span-2" />
               <ChartCard title="Weekly Visitor Trend" chart={<WeeklyVisitorTrendChart data={processedData.weeklyVisitorTrend} />} />
               <ChartCard title="Top 5 Active Cameras" chart={<TopCamerasChart data={processedData.topCameras} />} />
               <ChartCard 
                 title={`Weather and Visitors in ${settings.city}`} 
                 chart={<WeatherVisitorCorrelationChart data={processedData.weatherVisitorCorrelation} />} 
-                className="md:col-span-2" 
+                className="lg:col-span-2" 
               />
             </div>
 

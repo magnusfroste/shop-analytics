@@ -24,10 +24,14 @@ const SummaryCard = ({ title, value, icon }) => (
 );
 
 export const ChartCard = ({ title, chart, className = "" }) => (
-  <Card className={className}>
-    <CardHeader>
-      <CardTitle>{title}</CardTitle>
+  <Card className={`${className} overflow-hidden`}>
+    <CardHeader className="pb-2">
+      <CardTitle className="text-base sm:text-lg">{title}</CardTitle>
     </CardHeader>
-    <CardContent>{chart}</CardContent>
+    <CardContent className="p-2 sm:p-6">
+      <div className="w-full min-h-[280px] sm:min-h-[300px]">
+        {chart}
+      </div>
+    </CardContent>
   </Card>
 );
