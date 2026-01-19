@@ -73,7 +73,7 @@ const DashboardPanel = ({ processedData, summary, city, isOpen, onClose }) => {
   }
 
   return (
-    <div className="w-80 lg:w-96 h-full border-l border-border bg-background flex flex-col">
+    <div className="w-[480px] lg:w-[560px] h-full border-l border-border bg-background flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-border shrink-0">
         <h2 className="font-semibold text-foreground flex items-center gap-2">
