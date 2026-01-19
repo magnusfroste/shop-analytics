@@ -70,6 +70,39 @@ export type Database = {
           },
         ]
       }
+      visitors: {
+        Row: {
+          age: string | null
+          created_at: string
+          gender: string | null
+          id: number
+          id_camera: number | null
+          id_person: number | null
+          leave_date: string | null
+          visit_date: string | null
+        }
+        Insert: {
+          age?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: never
+          id_camera?: number | null
+          id_person?: number | null
+          leave_date?: string | null
+          visit_date?: string | null
+        }
+        Update: {
+          age?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: never
+          id_camera?: number | null
+          id_person?: number | null
+          leave_date?: string | null
+          visit_date?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
