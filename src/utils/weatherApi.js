@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_KEY = 'e077ca04648ca21a6b21623d9b0ad1c4';
+const API_KEY = import.meta.env.VITE_OPENWEATHERMAP_API_KEY || '';
 
 export const fetchWeatherData = async (dates, city = 'Stockholm') => {
   try {
